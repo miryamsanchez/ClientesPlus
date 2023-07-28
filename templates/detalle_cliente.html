@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}{{cliente}}{% endblock %}
+
+{% block content %}
+
+    <!-- TODO: Visualizar datos do cliente -->
+    <div class="container">
+        <h1 class="mt-4">{{ cliente }}</h1>
+        <ul class="list-group">
+            <li class="list-group-item"><strong>Nombre:</strong> {{ cliente.nombre }}</li>
+            <li class="list-group-item"><strong>Apellidos:</strong> {{ cliente.apellidos }}</li>
+            <li class="list-group-item"><strong>Sexo:</strong> {{ cliente.sexo }}</li>
+            <li class="list-group-item"><strong>Email:</strong> {{ cliente.email }}</li>
+            <li class="list-group-item"><strong>Teléfono:</strong> {{ cliente.telefono }}</li>
+            <li class="list-group-item"><strong>Dirección:</strong> {{ cliente.direccion }}</li>
+            <li class="list-group-item"><strong>Ciudad:</strong> {{ cliente.ciudad }}</li>
+            <li class="list-group-item"><strong>País:</strong> {{ cliente.pais }}</li>
+        </ul>
+    </div>
+{% endblock %}
