@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import csv
+import random
 
 class Cliente:
     objetos = [] # Lista para almacenar las instancias del cliente, las instancias te permiten trabajar individualmente con cada cliente
@@ -49,6 +50,30 @@ class Cliente:
             if all(getattr(cliente, k) == v for k, v in kwargs.items()):
                 yield cliente
     
+    # ... (Código existente)
+
+    @classmethod
+    def nuevo(cls, **kwargs):
+
+        # Crea una nueva instancia de Cliente con los datos proporcionados en kwargs
+        nuevo_cliente = Cliente(id=random.randint(1000,100000), **kwargs)
+        cls.objetos.append(nuevo_cliente)  # Agrega el nuevo cliente a la lista de objetos
+
+
+    @classmethod
+    def eliminar(cls, id):
+        cliente = cls.buscar(id)
+        if cliente:
+            cls.objetos.remove(cliente)
+            return True #Agregamos un retorno para indicar éxito
+        return False  #Retornamos False si el cliente no fue encontrado 
+    
+    @classmethod
+    def editar(cls, id, **kwargs):
+        cliente = cls.buscar(id)
+        if cliente:
+            for key, value in kwargs.items():
+                setattr(cliente, key, value)
       
                 
     

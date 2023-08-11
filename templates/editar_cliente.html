@@ -1,0 +1,34 @@
+
+{% extends 'base.html' %}
+
+{% block title %}{{cliente}}{% endblock %}
+
+{% block content %}
+    <h3>Editar Cliente</h3>
+    <div class="container">
+        <h2 class="mt-4">{{ cliente }}</h2>
+        <form method="POST" action="{{ url_for('editar_cliente', id=cliente.id) }}">
+        <ul class="list-group">
+        <label class="list-group-item"><strong>Nombre</strong></label>
+        <input type="text" id="nombre" name="nombre" value="{{ cliente.nombre }}"><br>
+        <label class="list-group-item"><strong>Apellidos</strong></label>
+        <input type="text" id="apellidos" name="apellidos" value="{{ cliente.apellidos }}"><br>
+        <label class="list-group-item"><strong>Sexo:</strong></label>
+        <input type="text" id="sexo" name="sexo" value="{{ cliente.sexo }}"><br>
+        <label class="list-group-item"><strong>Email:</strong></label>
+        <input type="email" id="email" name="email" value="{{ cliente.email }}"><br>
+        <label class="list-group-item"><strong>Teléfono:</strong></label>
+        <input type="tel" id="telefono" name="telefono" value="{{ cliente.telefono }}"><br>
+        <label class="list-group-item"><strong>Dirección:</strong></label>
+        <input type="text" id="direccion" name="direccion" value="{{ cliente.direccion }}"><br>
+        <label class="list-group-item"><strong>Ciudad:</strong></label>
+        <input type="text" id="ciudad" name="ciudad" value="{{ cliente.ciudad }}"><br>
+        <label class="list-group-item"><strong>País:</strong></label>
+        <input type="text" id="pais" name="pais" value="{{ cliente.pais }}"><br>
+        </ul>            
+        <button type="submit">Guardar Cambios</button>
+    </form>
+    </div>
+    <a href="{{ url_for('index') }}">Volver a la lista de clientes</a>
+    
+{% endblock %}
