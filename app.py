@@ -4,9 +4,6 @@ from pathlib import Path
 
 app = Flask(__name__)
 
-# Cargar datos de clientes desde un archivo CSV
-Cliente.cargar_datos(Path('data') / 'clientes.csv')
-
 @app.route('/')
 def index():
     search_query = request.args.get('search', '').lower()
