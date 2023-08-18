@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import csv
+import mysql.connector
 import random
 
 class Cliente:
-    objetos = [] # Lista para almacenar las instancias del cliente, las instancias te permiten trabajar individualmente con cada cliente
+    objetos = []
 
-    def __init__(self, **kwargs): #kwargs es un diccionario que contiene los argumentos con nombre proporcionados al crear una instancia cliente. 
-        self.id = int(kwargs['id'])#Inicializa el atributo "id" con el valor proporcinado en kwargs id convirtiendolo a entero
+    def __init__(self, **kwargs):
+        self.id = int(kwargs['id'])
         self.nombre = kwargs['nombre']
         self.apellidos = kwargs['apellidos']
         self.sexo = kwargs['sexo']
@@ -16,64 +16,192 @@ class Cliente:
         self.direccion = kwargs['direccion']
         self.ciudad = kwargs['ciudad']
         self.pais = kwargs['pais']
-        Cliente.objetos.append(self) #Agrega la instancia actual de Cliente a la lista de 'objetos'
+        Cliente.objetos.append(self)
 
     def __repr__(self):
-        return f'Cliente(id={repr(self.id)}, nombre={repr(self.nombre)}, apellidos={repr(self.nombre)})'
+        return f'Cliente(id={repr(self.id)}, nombre={repr(self.nombre)}, apellidos={repr(self.apellidos)})'
 
-    def __str__(self):
-        return f'{self.nombre} {self.apellidos}'
+    # Métodos de clase
 
     @classmethod
-    def cargar_datos(cls, archivo):
-        with open(archivo, newline='', encoding='utf-8') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                Cliente(**row)
+    def cargar_datos(cls):
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM clientes")
+        rows = cursor.fetchall()
+
+        for row in rows:
+            Cliente(**{
+                'id': row[0],
+                'nombre': row[1],
+                'apellidos': row[2],
+                'sexo': row[3],
+                'email': row[4],
+                'telefono': row[5],
+                'direccion': row[6],
+                'ciudad': row[7],
+                'pais': row[8]
+            })
+
+        cursor.close()
+        connection.close()
 
     @classmethod
     def todos(cls):
-        for cliente in cls.objetos:
-            yield cliente
-    
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM clientes")
+        rows = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        for row in rows:
+            yield Cliente(**{
+                'id': row[0],
+                'nombre': row[1],
+                'apellidos': row[2],
+                'sexo': row[3],
+                'email': row[4],
+                'telefono': row[5],
+                'direccion': row[6],
+                'ciudad': row[7],
+                'pais': row[8]
+            })
+
     @classmethod
     def buscar(cls, id):
-        for cliente in cls.objetos:
-            if cliente.id == id:
-                return cliente
-        return None
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        select_query = "SELECT * FROM clientes WHERE id = %s"
+        values = (id,)
+
+        cursor.execute(select_query, values)
+        row = cursor.fetchone()
+
+        cursor.close()
+        connection.close()
+
+        if row:
+            return Cliente(**{
+                'id': row[0],
+                'nombre': row[1],
+                'apellidos': row[2],
+                'sexo': row[3],
+                'email': row[4],
+                'telefono': row[5],
+                'direccion': row[6],
+                'ciudad': row[7],
+                'pais': row[8]
+            })
+        else:
+            return None
 
     @classmethod
     def filtrar(cls, **kwargs):
-        resultado = []
-        for cliente in cls.objetos:
-            if all(getattr(cliente, k) == v for k, v in kwargs.items()):
-                yield cliente
-    
-    # ... (Código existente)
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        select_query = "SELECT * FROM clientes WHERE "
+        conditions = []
+        values = []
+
+        for key, value in kwargs.items():
+            conditions.append(f"{key} = %s")
+            values.append(value)
+
+        select_query += " AND ".join(conditions)
+
+        cursor.execute(select_query, values)
+        rows = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        for row in rows:
+            yield Cliente(**{
+                'id': row[0],
+                'nombre': row[1],
+                'apellidos': row[2],
+                'sexo': row[3],
+                'email': row[4],
+                'telefono': row[5],
+                'direccion': row[6],
+                'ciudad': row[7],
+                'pais': row[8]
+            })
 
     @classmethod
     def nuevo(cls, **kwargs):
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
 
-        # Crea una nueva instancia de Cliente con los datos proporcionados en kwargs
-        nuevo_cliente = Cliente(id=random.randint(1000,100000), **kwargs)
-        cls.objetos.append(nuevo_cliente)  # Agrega el nuevo cliente a la lista de objetos
+        insert_query = "INSERT INTO clientes (nombre, apellidos, sexo, email, telefono, direccion, ciudad, pais) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        values = (
+            kwargs['nombre'],
+            kwargs['apellidos'],
+            kwargs['sexo'],
+            kwargs['email'],
+            kwargs['telefono'],
+            kwargs['direccion'],
+            kwargs['ciudad'],
+            kwargs['pais']
+        )
 
+        cursor.execute(insert_query, values)
+        connection.commit()
+
+        cursor.close()
+        connection.close()
 
     @classmethod
     def eliminar(cls, id):
-        cliente = cls.buscar(id)
-        if cliente:
-            cls.objetos.remove(cliente)
-            return True #Agregamos un retorno para indicar éxito
-        return False  #Retornamos False si el cliente no fue encontrado 
-    
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        delete_query = "DELETE FROM clientes WHERE id = %s"
+        values = (id,)
+
+        cursor.execute(delete_query, values)
+        connection.commit()
+
+        cursor.close()
+        connection.close()
+
     @classmethod
     def editar(cls, id, **kwargs):
-        cliente = cls.buscar(id)
-        if cliente:
-            for key, value in kwargs.items():
-                setattr(cliente, key, value)
-      
-                
-    
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        update_query = "UPDATE clientes SET nombre = %s, apellidos = %s, sexo = %s, email = %s, telefono = %s, direccion = %s, ciudad = %s, pais = %s WHERE id = %s"
+        values = (
+            kwargs['nombre'],
+            kwargs['apellidos'],
+            kwargs['sexo'],
+            kwargs['email'],
+            kwargs['telefono'],
+            kwargs['direccion'],
+            kwargs['ciudad'],
+            kwargs['pais'],
+            id
+        )
+
+        cursor.execute(update_query, values)
+        connection.commit()
+
+        cursor.close()
+        connection.close()
+
+# Configuración de conexión a la base de datos
+db_config = {
+    'host': '127.0.0.1',
+    'user': 'afd',
+    'password': 'afd',
+    'database': 'clientes'
+}
+
+# Cargar datos al iniciar la aplicación
+Cliente.cargar_datos()
